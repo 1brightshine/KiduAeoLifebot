@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kidu - Aerospace & Lifestyle AI</title>
+  <style>
+    :root {
+      --bg-color: #e5ddd5;
+      --chat-bg: #f5f7f8;
+      --panel-bg: #ffffff;
+      --text-color: #1f2d3d;
+      --muted-color: #667781;
+      --bot-bubble: #ffffff;
+      --user-bubble: #dcf8c6;
+      --user-text: #1f2d3d;
+      --border-color: rgba(0,0,0,0.08);
+      --primary: #128c7e;
+      --primary-dark: #075e54;
+      --shadow: rgba(0, 0, 0, 0.08);
+      --input-bg: #f0f2f5;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0b141a;
+      --chat-bg: #111b21;
+      --panel-bg: #202c33;
+      --text-color: #e9edef;
+      --muted-color: #aebac1;
+      --bot-bubble: #202c33;
+      --user-bubble: #005c4b;
+      --user-text: #e9edef;
+      --border-color: rgba(255,255,255,0.06);
+      --primary: #25d366;
+      --primary-dark: #1da851;
+      --shadow: rgba(0,0,0,0.25);
+      --input-bg: #1f2c34;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      transition: 0.3s ease;
+      padding: 20px;
+    }
+
+    #chat-container {
+      width: 100%;
+      max-width: 460px;
+      height: 92vh;
+      background: var(--chat-bg);
+      border-radius: 18px;
+      box-shadow: 0 18px 40px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    #header-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+      box-shadow: 0 2px 6px rgba(18,140,126,0.35);
+    }
+
+    #header h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    #theme-toggle:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    #chat-box {
+      flex: 1;
+      padding: 18px 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background:
+        linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.05)),
+        var(--chat-bg);
+    }
+
+    .message-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+      gap: 6px;
+    }
+
+    .message-wrap.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message-wrap.bot {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 18px;
+      line-height: 1.45;
+      word-wrap: break-word;
+      font-size: 15px;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+    }
+
+    .bot-msg {
+      background: var(--bot-bubble);
+      color: var(--text-color);
+      border-top-left-radius: 4px;
+    }
+
+    .user-msg {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      border-top-right-radius: 4px;
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: var(--muted-color);
+      padding: 0 4px;
+    }
+
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      max-width: 90%;
+    }
+
+    .quick-reply-btn {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 7px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.2s ease;
+    }
+
+    .quick-reply-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    #input-area {
+      display: flex;
+      padding: 12px 12px 14px;
+      border-top: 1px solid var(--border-color);
+      background: var(--panel-bg);
+      gap: 10px;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      background: var(--input-bg);
+      color: var(--text-color);
+      outline: none;
+      font-size: 15px;
+    }
+
+    #send-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+    }
+
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 12px 14px;
+      background: var(--bot-bubble);
+      border-radius: 18px;
+      border-top-left-radius: 4px;
+      align-self: flex-start;
+      width: fit-content;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      background: var(--muted-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: blink 1.4s infinite both;
+    }
+
+    .dot:nth-child(1) { animation-delay: 0.2s; }
+    .dot:nth-child(2) { animation-delay: 0.4s; }
+    .dot:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.2; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-3px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-container">
+    <div id="header">
+      <div id="header-info">
+        <div class="avatar">🚀</div>
+        <h3>Kidu</h3>
+      </div>
+      <button id="theme-toggle">🌓</button>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+      <button id="send-btn">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const systemPrompt = `You are Kidu — an advanced AI assistant specializing in two domains: Aerospace knowledge and Lifestyle guidance.
+Your mission is to provide accurate, detailed, and highly readable information that bridges technical aerospace concepts with everyday routines.
+
+Tone & Personality:
+- Be friendly, supportive, and professional.
+- Act as a collaborative mentor — never condescending, always encouraging.
+- Use relevant emojis naturally (🚀, ✈️, ☕, 💡, 🧘) to add warmth.
+- Occasionally use aerospace metaphors when discussing lifestyle or productivity.
+
+Interaction Rules:
+1. Conciseness by Default: Start with a clear, high-level answer. Expand only if asked.
+2. Markdown Mastery: Use **bold** for key terms, bullet points, and numbered lists.
+3. Dual Focus: Always connect aerospace insights with lifestyle relevance when possible.
+4. Error Gracefulness: If data is missing, reply: “Houston, we have a slight issue. Could you rephrase or try another query?”
+5. Follow-ups: End each response with 2–3 relevant options in brackets. Example: [Explain the physics] [Give a daily habit tip].
+
+Domain Guidelines:
+- Aerospace: Explain flight dynamics, spacecraft systems, industry trends, and engineering concepts in accessible detail.
+- Lifestyle: Offer actionable routines, productivity hacks, wellness tips, and personal growth strategies.`;
+
+    let conversationHistory = [
+      { role: "system", content: systemPrompt }
+    ];
+
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    window.onload = () => {
+      appendMessage("bot", "👋 Hi, I’m Kidu! I can help you navigate complex aerospace concepts, optimize your daily lifestyle, or solve everyday problems. What are we exploring today?\n[Ask about Aerospace] [Improve my routine] [Solve a problem]");
+    };
+
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      document.body.setAttribute("data-theme", isDark ? "light" : "dark");
+    });
+
+    sendBtn.addEventListener("click", handleSend);
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleSend();
+    });
+
+    function handleSend() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage("user", text);
+      conversationHistory.push({ role: "user", content: text });
+      userInput.value = "";
+
+      showTypingIndicator();
+      fetchAIResponse();
+    }
+
+    function appendMessage(sender, text) {
+      const wrap = document.createElement("div");
+      wrap.classList.add("message-wrap", sender === "user" ? "user" : "bot");
+
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender === "user" ? "user-msg" : "bot-msg");
+
+      if (sender === "bot") {
+        const quickReplyRegex = /\[(.*?)\]/g;
+        let htmlText = text.replace(quickReplyRegex, '').trim();
+
+        htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        htmlText = htmlText.replace(/\n/g, '<br>');
+
+        msgDiv.innerHTML = htmlText;
+        wrap.appendChild(msgDiv);
+
+        const matches = [...text.matchAll(quickReplyRegex)];
+        if (matches.length > 0) {
+          const btnContainer = document.createElement("div");
+          btnContainer.classList.add("quick-replies");
+
+          matches.forEach(match => {
+            const btnText = match[1];
+            const btn = document.createElement("button");
+            btn.classList.add("quick-reply-btn");
+            btn.innerText = btnText;
+            btn.onclick = () => {
+              userInput.value = btnText;
+              handleSend();
+            };
+            btnContainer.appendChild(btn);
+          });
+          wrap.appendChild(btnContainer);
+        }
+      } else {
+        msgDiv.innerText = text;
+        wrap.appendChild(msgDiv);
+      }
+
+      const stamp = document.createElement("div");
+      stamp.classList.add("timestamp");
+      stamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      wrap.appendChild(stamp);
+
+      chatBox.appendChild(wrap);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.classList.add("typing");
+      typingDiv.id = "typing-indicator";
+      typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const indicator = document.getElementById("typing-indicator");
+      if (indicator) indicator.remove();
+    }
+
+    async function fetchAIResponse() {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ messages: conversationHistory })
+        });
+
+        const data = await response.json();
+        removeTypingIndicator();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+
+        const replyText = data.reply;
+        appendMessage('bot', replyText);
+        conversationHistory.push({ role: 'assistant', content: replyText });
+      } catch (error) {
+        removeTypingIndicator();
+        const message = error?.message || 'Houston, we have a slight issue. Could you rephrase or try another query?';
+        appendMessage('bot', message);
+      }
+    }
+  </script>
+
+</body>
+</html>
