@@ -35,6 +35,14 @@ Then open:
 http://localhost:3000
 ```
 
+## Deploy to Vercel
+
+Import this repository into Vercel, then add the environment variable
+`GEMINI_API_KEY` in the project settings. Do not upload `.env` to Vercel or GitHub.
+
+The included `vercel.json` routes the website and `/api/chat` through the Express
+serverless function.
+
 ## Notes
 
 - The frontend sends chat history to the backend at `/api/chat`.

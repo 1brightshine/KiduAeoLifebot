@@ -77,6 +77,12 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(port, () => {
-  console.log(`AeroLifeBot Gemini chat backend running at http://localhost:${port}`);
-});
+// Vercel imports the Express app as a serverless function; local development
+// still starts the HTTP server when this file is run directly.
+if (process.env.VERCEL !== '1') {
+  app.listen(port, () => {
+    console.log(`AeroLifeBot Gemini chat backend running at http://localhost:${port}`);
+  });
+}
+
+export default app;
