@@ -32,7 +32,7 @@ Error Handling:
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static('.'));
 
-app.post('/api/chat', async (req, res) => {
+export async function handleChat(req, res) {
   try {
     const { messages } = req.body || {};
 
@@ -71,7 +71,9 @@ app.post('/api/chat', async (req, res) => {
     const message = error?.message || 'Unknown Gemini error';
     return res.status(500).json({ error: message });
   }
-});
+}
+
+app.post('/api/chat', handleChat);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
